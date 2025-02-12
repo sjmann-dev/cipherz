@@ -105,7 +105,7 @@ mod tests {
     }
 
     #[test]
-    fn caeser_cipher_encode_with_offset_gt_26() {
+    fn caeser_cipher_with_offset_gt_26() {
         let input = "abcdef";
         let encoded = caeser_cipher(input, 27, Direction::Encode);
         let decoded = caeser_cipher(&encoded, 27, Direction::Decode);
@@ -114,7 +114,7 @@ mod tests {
     }
 
     #[test]
-    fn caeser_cipher_encode_handles_looping() {
+    fn caeser_cipher_handles_looping() {
         let input = "xyz";
         let encoded = caeser_cipher(input, 3, Direction::Encode);
         let decoded = caeser_cipher(&encoded, 3, Direction::Decode);
@@ -123,7 +123,7 @@ mod tests {
     }
 
     #[test]
-    fn caeser_cipher_encode_preserves_spaces() {
+    fn caeser_cipher_preserves_spaces() {
         let input = "xyz abc";
         let encoded = caeser_cipher(input, 3, Direction::Encode);
         let decoded = caeser_cipher(&encoded, 3, Direction::Decode);
