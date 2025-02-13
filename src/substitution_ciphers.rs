@@ -31,8 +31,9 @@ fn get_char_numeric_equivalent(c: &char) -> i32 {
     }
 }
 
-fn get_numeric_char_equivalent(x: &i32) -> char {
-    match x  {
+fn get_numeric_char_equivalent(x: i32) -> char {
+    let sanitised_x = if x < 0 {26 + x} else {x};
+    match sanitised_x  {
         0 => 'a',
         1 => 'b',
         2 => 'c',
@@ -69,25 +70,24 @@ pub enum Direction {
     Decode
 }
 
-pub fn caeser_cipher(text: &str, offset: i32, direction: Direction) -> String {
-    let sanitised_offset = offset % 26;
-    text.chars().map(|c| {
-        let numeric_value = get_char_numeric_equivalent(&c);
-        if numeric_value == 100 {
-            return c;
-        }
-        let shifted_numeric_value = match direction {
-            Direction::Encode => (numeric_value + sanitised_offset) % 26,
-            Direction::Decode => {
-                let raw_numeric = (numeric_value - sanitised_offset) % 26;
-                if raw_numeric < 0 {
-                    26 + raw_numeric
-                } else {
-                    raw_numeric
-                }
-            },
+pub fn caeser_cipher(plaintext: &str, offset: i32, direction: Direction) -> String {
+    affine_cipher(plaintext, 1, offset, direction)
+}
+
+pub fn atbash_cipher(plaintext: &str, direction: Direction) -> String {
+    affine_cipher(plaintext, -1, -1, direction)
+}
+
+pub fn affine_cipher(plaintext: &str, a: i32, b: i32, direction: Direction) -> String {
+    // TODO: Check a is coprime with 26
+    plaintext.chars().map(|c| {
+        let x = get_char_numeric_equivalent(&c);
+        if x == 100 { return c; }
+        let numeric_value = match direction {
+            Direction::Encode => ((a * x) + b) % 26,
+            Direction::Decode => (a as f64).powf(-1.0) as i32 * (x - b) % 26
         };
-        get_numeric_char_equivalent(&shifted_numeric_value)
+        get_numeric_char_equivalent(numeric_value)
     }).collect()
 }
 
@@ -128,6 +128,24 @@ mod tests {
         let encoded = caeser_cipher(input, 3, Direction::Encode);
         let decoded = caeser_cipher(&encoded, 3, Direction::Decode);
         assert_eq!(encoded, "abc def");
+        assert_eq!(decoded, input);
+    }
+
+    #[test]
+    fn atbash_cipher_decode_and_encode() {
+        let input = "abcdef";
+        let encoded = atbash_cipher(input, Direction::Encode);
+        let decoded = atbash_cipher(&encoded, Direction::Decode);
+        assert_eq!(encoded, "zyxwvu");
+        assert_eq!(decoded, input);
+    }
+
+    #[test]
+    fn atbash_cipher_preserves_spaces() {
+        let input = "abc def";
+        let encoded = atbash_cipher(input, Direction::Encode);
+        let decoded = atbash_cipher(&encoded, Direction::Decode);
+        assert_eq!(encoded, "zyx wvu");
         assert_eq!(decoded, input);
     }
 }
