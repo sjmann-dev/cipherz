@@ -82,6 +82,10 @@ pub fn atbash_cipher(plaintext: &str, direction: Direction) -> Result<String, St
     affine_cipher(plaintext, -1, -1, direction)
 }
 
+pub fn rot_13_cipher(plaintext: &str, direction: Direction) -> Result<String, String> {
+    affine_cipher(plaintext, 1, 13, direction)
+}
+
 pub fn affine_cipher(plaintext: &str, a: i32, b: i32, direction: Direction) -> Result<String, String> {
     if !are_coprime(a, 26) { return Err(format!("Value for a({a}) is not coprime with 26")); }
     Ok(plaintext.chars().map(|c| {
@@ -114,6 +118,15 @@ mod tests {
         let encoded = caeser_cipher(input, 27, Direction::Encode);
         let decoded = caeser_cipher(&encoded.clone().ok().unwrap(), 27, Direction::Decode);
         assert_eq!(encoded, Ok("bcdefg".to_string()));
+        assert_eq!(decoded, Ok(input.to_string()));
+    }
+
+    #[test]
+    fn rot_13_cipher_typical() {
+        let input = "abcdef";
+        let encoded = rot_13_cipher(input, Direction::Encode);
+        let decoded = rot_13_cipher(&encoded.clone().ok().unwrap(), Direction::Decode);
+        assert_eq!(encoded, Ok("nopqrs".to_string()));
         assert_eq!(decoded, Ok(input.to_string()));
     }
 
