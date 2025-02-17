@@ -74,19 +74,19 @@ pub enum Direction {
     Decode
 }
 
-pub fn caeser_cipher(plaintext: &str, offset: i32, direction: Direction) -> Result<String, String> {
+pub fn caeser_cipher(plaintext: String, offset: i32, direction: Direction) -> Result<String, String> {
     affine_cipher(plaintext, 1, offset, direction)
 }
 
-pub fn atbash_cipher(plaintext: &str, direction: Direction) -> Result<String, String> {
+pub fn atbash_cipher(plaintext: String, direction: Direction) -> Result<String, String> {
     affine_cipher(plaintext, -1, -1, direction)
 }
 
-pub fn rot_13_cipher(plaintext: &str, direction: Direction) -> Result<String, String> {
+pub fn rot_13_cipher(plaintext: String, direction: Direction) -> Result<String, String> {
     affine_cipher(plaintext, 1, 13, direction)
 }
 
-pub fn affine_cipher(plaintext: &str, a: i32, b: i32, direction: Direction) -> Result<String, String> {
+pub fn affine_cipher(plaintext: String, a: i32, b: i32, direction: Direction) -> Result<String, String> {
     if !are_coprime(a, 26) { return Err(format!("Value for a({a}) is not coprime with 26")); }
     Ok(plaintext.chars().map(|c| {
         let x = get_char_numeric_equivalent(&c);
@@ -106,8 +106,8 @@ mod tests {
     #[test]
     fn caeser_cipher_with_offset_lt_26() {
         let input = "abcdef";
-        let encoded = caeser_cipher(input, 1, Direction::Encode);
-        let decoded = caeser_cipher(&encoded.clone().ok().unwrap(), 1, Direction::Decode);
+        let encoded = caeser_cipher(input.to_string(), 1, Direction::Encode);
+        let decoded = caeser_cipher(encoded.clone().ok().unwrap().to_string(), 1, Direction::Decode);
         assert_eq!(encoded, Ok("bcdefg".to_string()));
         assert_eq!(decoded, Ok(input.to_string()));
     }
@@ -115,8 +115,8 @@ mod tests {
     #[test]
     fn caeser_cipher_with_offset_gt_26() {
         let input = "abcdef";
-        let encoded = caeser_cipher(input, 27, Direction::Encode);
-        let decoded = caeser_cipher(&encoded.clone().ok().unwrap(), 27, Direction::Decode);
+        let encoded = caeser_cipher(input.to_string(), 27, Direction::Encode);
+        let decoded = caeser_cipher(encoded.clone().ok().unwrap(), 27, Direction::Decode);
         assert_eq!(encoded, Ok("bcdefg".to_string()));
         assert_eq!(decoded, Ok(input.to_string()));
     }
@@ -124,8 +124,8 @@ mod tests {
     #[test]
     fn rot_13_cipher_typical() {
         let input = "abcdef";
-        let encoded = rot_13_cipher(input, Direction::Encode);
-        let decoded = rot_13_cipher(&encoded.clone().ok().unwrap(), Direction::Decode);
+        let encoded = rot_13_cipher(input.to_string(), Direction::Encode);
+        let decoded = rot_13_cipher(encoded.clone().ok().unwrap(), Direction::Decode);
         assert_eq!(encoded, Ok("nopqrs".to_string()));
         assert_eq!(decoded, Ok(input.to_string()));
     }
@@ -133,8 +133,8 @@ mod tests {
     #[test]
     fn caeser_cipher_handles_looping() {
         let input = "xyz";
-        let encoded = caeser_cipher(input, 3, Direction::Encode);
-        let decoded = caeser_cipher(&encoded.clone().ok().unwrap(), 3, Direction::Decode);
+        let encoded = caeser_cipher(input.to_string(), 3, Direction::Encode);
+        let decoded = caeser_cipher(encoded.clone().ok().unwrap(), 3, Direction::Decode);
         assert_eq!(encoded, Ok("abc".to_string()));
         assert_eq!(decoded, Ok(input.to_string()));
     }
@@ -142,8 +142,8 @@ mod tests {
     #[test]
     fn caeser_cipher_preserves_spaces() {
         let input = "xyz abc";
-        let encoded = caeser_cipher(input, 3, Direction::Encode);
-        let decoded = caeser_cipher(&encoded.clone().ok().unwrap(), 3, Direction::Decode);
+        let encoded = caeser_cipher(input.to_string(), 3, Direction::Encode);
+        let decoded = caeser_cipher(encoded.clone().ok().unwrap(), 3, Direction::Decode);
         assert_eq!(encoded, Ok("abc def".to_string()));
         assert_eq!(decoded, Ok(input.to_string()));
     }
@@ -151,8 +151,8 @@ mod tests {
     #[test]
     fn atbash_cipher_decode_and_encode() {
         let input = "abcdef";
-        let encoded = atbash_cipher(input, Direction::Encode);
-        let decoded = atbash_cipher(&encoded.clone().ok().unwrap(), Direction::Decode);
+        let encoded = atbash_cipher(input.to_string(), Direction::Encode);
+        let decoded = atbash_cipher(encoded.clone().ok().unwrap(), Direction::Decode);
         assert_eq!(encoded, Ok("zyxwvu".to_string()));
         assert_eq!(decoded, Ok(input.to_string()));
     }
@@ -160,8 +160,8 @@ mod tests {
     #[test]
     fn atbash_cipher_preserves_spaces() {
         let input = "abc def";
-        let encoded = atbash_cipher(input, Direction::Encode);
-        let decoded = atbash_cipher(&encoded.clone().ok().unwrap(), Direction::Decode);
+        let encoded = atbash_cipher(input.to_string(), Direction::Encode);
+        let decoded = atbash_cipher(encoded.clone().ok().unwrap(), Direction::Decode);
         assert_eq!(encoded, Ok("zyx wvu".to_string()));
         assert_eq!(decoded, Ok(input.to_string()));
     }
@@ -169,7 +169,7 @@ mod tests {
     #[test]
     fn affine_cipher_fails_when_coprime_constraint_violated() {
         let input = "abc def";
-        let encoded = affine_cipher(input, 2, 0, Direction::Encode);
+        let encoded = affine_cipher(input.to_string(), 2, 0, Direction::Encode);
         assert!(encoded.is_err());
         assert_eq!(encoded, Err(String::from("Value for a(2) is not coprime with 26")));
     }

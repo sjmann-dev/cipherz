@@ -1,1 +1,1 @@
-mod substitution_ciphers;
+pub mod substitution_ciphers;
